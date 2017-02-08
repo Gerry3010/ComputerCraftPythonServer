@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import json
 import socket
 
 from flask import Flask
@@ -19,7 +19,10 @@ def hello():
 @app.route('/', methods=['GET', 'POST'])
 def req():
     if request.method == 'GET':
-        return s.recv(4096).decode('utf-8')
+        received = json.loads(s.recv(4096).decode('utf-8'))
+        string = received['ID'] + ',' + received['message']
+        print('Received:', string)
+        return string
     elif request.method == 'POST':
         # Send the client a message
         # res1 = request.form.get('result')

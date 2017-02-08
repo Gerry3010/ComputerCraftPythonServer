@@ -7,7 +7,6 @@ import socket
 import sys
 from threading import Thread
 
-
 s = socket.socket()
 
 s.bind(('127.0.0.1', 4344))
@@ -28,10 +27,13 @@ def main():
     thread = Thread(target=check_incoming)
     thread.start()
 
+    sent_commands = 0
+
     while True:
-        # send the input as before
-        c.send(input().encode('utf-8'))
-        pass
+        print('ID: ' + str(sent_commands) + ': ', end='')
+        message = '{"command": "' + input() + '", "id": ' + str(sent_commands) + '}'
+        c.send(message.encode('utf-8'))
+        sent_commands += 1
 
 
 try:
@@ -45,4 +47,4 @@ except KeyboardInterrupt:
     try:
         sys.exit(0)
     except SystemExit:
-        os._exit(0)
+        pass
