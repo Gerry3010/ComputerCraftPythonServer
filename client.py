@@ -1,19 +1,18 @@
 # coding: utf-8
 
 # This is the main code that will need to be changed.
-import os
 import socket
 
 import sys
 from threading import Thread
 
+import errno
+
+import time
+
 s = socket.socket()
-
-s.bind(('127.0.0.1', 4344))
-s.listen(-1)
-
-c = s.accept()
-c = c[0]
+s.connect(('127.0.0.1', 4344))
+s.setblocking(0)
 
 print('Server is ready, please type your commands:')
 
@@ -21,30 +20,25 @@ print('Server is ready, please type your commands:')
 def main():
     def check_incoming():
         while True:
-            # TODO Check for incoming messages and print them
-            pass
+            try:
+                received = s.recv(4096).decode('utf-8')
+                if received and not received.isspace():
+                    print('Received:', received)
+            except BlockingIOError:
+                # time.sleep(1)
+                pass
 
-    thread = Thread(target=check_incoming)
-    thread.start()
+    def send():
+        sent_commands = 0
+        while True:
+            print('ID: ' + str(sent_commands) + ': ')
+            data_in = sys.stdin.readline().strip('\n')
+            message = '{"command": "' + data_in + '", "id": ' + str(sent_commands) + '}'
+            s.send(message.encode('utf-8'))
+            sent_commands += 1
 
-    sent_commands = 0
-
-    while True:
-        print('ID: ' + str(sent_commands) + ': ', end='')
-        message = '{"command": "' + input() + '", "id": ' + str(sent_commands) + '}'
-        c.send(message.encode('utf-8'))
-        sent_commands += 1
+    Thread(target=check_incoming).start()
+    Thread(target=send).start()
 
 
-try:
-    main()
-except KeyboardInterrupt:
-    try:
-        c.close()
-    finally:
-        pass
-
-    try:
-        sys.exit(0)
-    except SystemExit:
-        pass
+main()
