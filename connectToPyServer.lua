@@ -51,14 +51,23 @@ function errorhandler(err)
     print('Error: ' .. err)
 end
 
-while true do
-    local message = http.get(url).readAll()
-    print('Message: ' .. message)
-    local commaindex = string.find(message, ',')
-    if commaindex then
-        command_id = string.sub(message, 0, commaindex - 1)
-        command_string = string.sub(message, commaindex + 1, string.len(message))
+local message
 
-        xpcall(handler, errorhandler)
+function loadmessage()
+    message = http.get(url).readAll()
+end
+
+while true do
+    pcall(loadmessage)
+    if message then
+        print('Message: ' .. message)
+        local commaindex = string.find(message, ',')
+        if commaindex then
+            command_id = string.sub(message, 0, commaindex - 1)
+            command_string = string.sub(message, commaindex + 1, string.len(message))
+
+            xpcall(handler, errorhandler)
+        end
+        message = nil
     end
 end

@@ -6,10 +6,6 @@ import socket
 import sys
 from threading import Thread
 
-import errno
-
-import time
-
 s = socket.socket()
 s.connect(('127.0.0.1', 4344))
 s.setblocking(0)
