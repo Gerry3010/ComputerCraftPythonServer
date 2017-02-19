@@ -23,7 +23,7 @@ def accept_clients():
 
 Thread(target=accept_clients).start()
 
-task_not_done = []
+tasks_to_do = []
 
 
 def read_requests():
@@ -36,8 +36,8 @@ def read_requests():
                     try:
                         # print('Received:', received)
                         json_string = json.loads(received)
-                        global task_not_done
-                        task_not_done.append(str(json_string['id']) + ',' + json_string['command'])
+                        global tasks_to_do
+                        tasks_to_do.append(str(json_string['id']) + ',' + json_string['command'])
                     except (ValueError, AttributeError):
                         pass
             except ConnectionResetError:
@@ -57,12 +57,12 @@ def hello():
 @app.route('/', methods=['GET', 'POST'])
 def req():
     if request.method == 'GET':
-        global task_not_done
+        global tasks_to_do
 
-        while len(task_not_done) <= 0:
+        while len(tasks_to_do) <= 0:
             time.sleep(1)
 
-        return task_not_done.pop(0)
+        return tasks_to_do.pop(0)
     elif request.method == 'POST':
         print('Returned data: ' + str(request.form))
 
