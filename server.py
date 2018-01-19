@@ -29,20 +29,22 @@ tasks_to_do = []
 def read_requests():
     global c
     while True:
-        if c:
-            try:
-                received = c.recv(4096).decode('utf-8')
-                if not received.isspace():
-                    try:
-                        # print('Received:', received)
-                        json_string = json.loads(received)
-                        global tasks_to_do
-                        tasks_to_do.append(str(json_string['id']) + ',' + json_string['command'])
-                    except (ValueError, AttributeError):
-                        pass
-            except ConnectionResetError:
-                c = None
-
+        try:
+            if c:
+                try:
+                    received = c.recv(4096).decode('utf-8')
+                    if not received.isspace():
+                        try:
+                            # print('Received:', received)
+                            json_string = json.loads(received)
+                            global tasks_to_do
+                            tasks_to_do.append(str(json_string['id']) + ',' + json_string['command'])
+                        except (ValueError, AttributeError):
+                            pass
+                except ConnectionResetError:
+                    c = None
+        except KeyboardInterrupt:
+            break
 
 Thread(target=read_requests).start()
 
